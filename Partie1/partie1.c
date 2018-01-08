@@ -1,3 +1,21 @@
+/*
+
+ *
+ *       Filename:  partie1.c
+ *
+ *      Description: Réaliser trois trains a l'aide des mutex
+ *
+ *        Version:  1.0
+ *        Created:  01/01/2018 
+ *       Revision:  none
+ *       Compiler:  gcc(g++)
+                    $gcc -Wall partie1.c -o -pthread
+ *                  $./a.out
+ *
+ *         Author:  |Jiangning LIN|, |linjiangning90@gmail.com|
+                    |Morvan CALMEL|, |morvan.calmel@gmail.com|
+ *
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -76,15 +94,15 @@ void* TrainUn(void *p){
         if ( strcmp(debut_train1, "B") == 0 && strcmp(fin_train1, "A") == 0) {
             clock_t temps_moyen = clock();
             if (rentre_train_un == 0) {
-              printf("\nLe temps moyen du trajet du train 1 est de : %f secondes\n\n", (double) temps_moyen / 100- 6);
+              printf("\nLe temps moyen du trajet du train 1 est de : %f secondes\n\n", (double) temps_moyen / 1000);
             }
             else if (rentre_train_un == 1) {
                 temps_moyen = clock();
-                printf("\nLe temps moyen du trajet du train 1 est de : %f secondes\n\n", (double) (temps_moyen / 100 - 6) / 2);
+                printf("\nLe temps moyen du trajet du train 1 est de : %f secondes\n\n", (double) (temps_moyen / 1000) / 2);
             }
             else if (rentre_train_un == 2) {
                 temps_moyen = clock();
-                printf("\nLe temps moyen du trajet du train 1 est de : %f secondes\n\n", (double) (temps_moyen / 100 - 6) / 3);
+                printf("\nLe temps moyen du trajet du train 1 est de : %f secondes\n\n", (double) (temps_moyen / 1000) / 3);
             }
             rentre_train_un = rentre_train_un + 1;
         }
@@ -118,13 +136,13 @@ void* TrainUn(void *p){
             
             
         } 
-        pthread_mutex_unlock(&mutex1);//on verrouille le mutex de Train1 pour déverrouiller le mutex de Train2 et Train3
+        pthread_mutex_unlock(&mutex1);//on déverrouille le mutex de Train1 
         pthread_mutex_unlock(&fifo);
-        strcpy(debut_train1,possible_debut_train1);//Train1 est parti, donne le valeur pour debut_train1
+        strcpy(debut_train1,possible_debut_train1);//Train1 est parti, donne le valeur  pour debut_train1
         
          // Récupère le temps
         temps = clock();
-        printf("%f - ", (double) temps / 100 - 6);    // et l'affiche
+        printf("%f - ", (double) temps / 1000);    // et l'affiche
 
 
         printf("Le train1 fait le trajet: %s\nLe train1 est parti de la gare: %s\n\n",train1[i%4],debut_train1);
@@ -133,17 +151,17 @@ void* TrainUn(void *p){
         
         // Récupère le temps
         temps = clock();
-        printf("%f - ", (double) temps / 100 - 6); // et l'affiche
+        printf("%f - ", (double) temps / 1000); // et l'affiche
         
         printf("Le train1 a fini le trajet : %s\nLe train1 est arrivé à la gare:%s\n\n",train1[i%4],fin_train1);
         nb_train1--;//Train1 a fini le trajet
         
-        // on déverrouille le mutex de Train2 et Train3
+        // on déverrouille les mutex de Train2 et Train3
         if(nb_train1 == 0){
             pthread_mutex_unlock(&mutex2);
             pthread_mutex_unlock(&mutex3);
         }
-        i++;//Le trajet suivant
+        i++;//un trajet suivant
         pthread_mutex_unlock(&mutex1);
         sleep(rand() % 3); //Train1 fait une pause
        
@@ -157,7 +175,7 @@ void* TrainDeux(void *p){
     char train2[5][8] = {"A --> B", "B --> D", "D --> C", "C --> B", "B --> A"};
     
     while (i >= 0 ){
-        // Récupère le trajet du train 1 en global dans debut_train1 et dans fin_train1 :
+        // Récupère le trajet du train 1 en global dans debut_train2 et dans fin_train2 :
         substring(0, 1, train2[i%5], possible_debut_train2, sizeof(possible_debut_train2));
         substring(6, 1, train2[i%5], possible_fin_train2, sizeof(possible_fin_train2));
         
@@ -165,15 +183,15 @@ void* TrainDeux(void *p){
         if ( strcmp(debut_train2, "B") == 0 && strcmp(fin_train2, "A") == 0) {
             clock_t temps_moyen = clock();
             if (rentre_train_deux == 0) {
-              printf("\nLe temps moyen du trajet du train 2 est de : %f secondes\n\n", (double) temps_moyen / 100- 6);
+              printf("\nLe temps moyen du trajet du train 2 est de : %f secondes\n\n", (double) temps_moyen / 1000);
             }
             else if (rentre_train_deux == 1) {
                 temps_moyen = clock();
-                printf("\nLe temps moyen du trajet du train 2 est de : %f secondes\n\n", (double) (temps_moyen / 100 - 6) / 2);
+                printf("\nLe temps moyen du trajet du train 2 est de : %f secondes\n\n", (double) (temps_moyen / 1000) / 2);
             }
             else if (rentre_train_deux == 2) {
                 temps_moyen = clock();
-                printf("\nLe temps moyen du trajet du train 2 est de : %f secondes\n\n", (double) (temps_moyen / 100 - 6) / 3);
+                printf("\nLe temps moyen du trajet du train 2 est de : %f secondes\n\n", (double) (temps_moyen / 1000) / 3);
             }
             rentre_train_deux = rentre_train_deux + 1;
         }
@@ -184,11 +202,11 @@ void* TrainDeux(void *p){
         pthread_mutex_lock(&mutex2);
         nb_train2++;//Train2 va aller le trajet
         if (nb_train2 == 1){
-            //On verrouille le mutex d'Train1 et Train2 dans la direction en inverse ou le même trajet
-            /*Deux cas dans la direction en inverse: 
+            //On verrouille les mutex d'Train1 et Train3 dans les directions en inverse ou les mêmes trajets
+            /*Deux cas dans les directions en inverse: 
              * 1. Train2 et Train1 veulent deux directions en inverse (ex: Train2 veut aller A->B, Train1 veux aller B->A)
              * 2. Train2 a fini le trajet A->B mais Train1 veux aller B->A
-             *Troisème cas en le même trajet (ex Train1 et Train2 veulent aller A->B)
+             *Troisème cas en les mêmes trajets (ex Train1 et Train2 veulent aller A->B)
              */
             if (train_en_inverse(possible_debut_train2,possible_fin_train2,possible_debut_train1,possible_fin_train1)||
                 (train_en_inverse(debut_train2,fin_train2,possible_debut_train1,possible_fin_train1) && 
@@ -205,32 +223,32 @@ void* TrainDeux(void *p){
                 pthread_mutex_lock(&mutex3);
             }  
         } 
-        pthread_mutex_unlock(&mutex2);//on verrouille le mutex de Train2 pour déverrouiller le mutex de Train1 et Train3
+        pthread_mutex_unlock(&mutex2);//on déverrouille le mutex de Train2 
         pthread_mutex_unlock(&fifo);
         strcpy(debut_train2,possible_debut_train2);//Train2 est parti, donne le valeur pour debut_train2
         
         // Récupère le temps
         temps = clock();
-        printf("%f - ", (double) temps / 100 - 6); // et l'affiche
+        printf("%f - ", (double) temps / 1000); // et l'affiche
         
         printf("Le train2 fait le trajet: %s\nLe train2 est parti de la gare: %s\n\n",train2[i%5],debut_train2);
         pthread_mutex_lock(&mutex2);
-        strcpy(fin_train2,possible_fin_train2);//Train2 est arrivé, donne le valeur pour fin_train2
+        strcpy(fin_train2,possible_fin_train2);//Train2 est arrivé, donne la valeur pour fin_train2
         
         // Récupère le temps
         temps = clock();
-        printf("%f - ", (double) temps / 100 - 6); // et l'affiche
+        printf("%f - ", (double) temps / 1000); // et l'affiche
         
         printf("Le train2 a fini le trajet : %s\nLe train2 est arrivé à la gare:%s\n\n",train2[i%5],fin_train2);
        
         nb_train2--;//Train2 a fini le trajet
-        
+        // on déverrouille les mutex de Train1 et Train3
         if(nb_train2 == 0){
            pthread_mutex_unlock(&mutex1);
            pthread_mutex_unlock(&mutex3); 
         }
     
-        i++;//Le trajet suivant
+        i++;//un trajet suivant
         pthread_mutex_unlock(&mutex2);
         sleep(rand() % 3); //Train2 fait une pause
     }
@@ -243,7 +261,7 @@ void* TrainTrois(void *p){
     char train3[5][8] = {"A --> B", "B --> D", "D --> C", "C --> E", "E --> A"};
     
     while (i >= 0 ){
-        // Récupère le trajet du train 1 en global dans debut_train1 et dans fin_train1 :
+        // Récupère le trajet du train 3 en global dans debut_train3 et dans fin_train3 :
         substring(0, 1, train3[i%5], possible_debut_train3, sizeof(possible_debut_train3));
         substring(6, 1, train3[i%5], possible_fin_train3, sizeof(possible_fin_train3));
         
@@ -251,26 +269,31 @@ void* TrainTrois(void *p){
         if ( strcmp(debut_train3, "E") == 0 && strcmp(fin_train3, "A") == 0) {
             clock_t temps_moyen = clock();
             if (rentre_train_trois == 0) {
-              printf("\nLe temps moyen du trajet du train 3 est de : %f secondes\n\n", (double) temps_moyen / 100- 6);
+              printf("\nLe temps moyen du trajet du train 3 est de : %f secondes\n\n", (double) temps_moyen / 1000);
             }
             else if (rentre_train_trois == 1) {
                 temps_moyen = clock();
-                printf("\nLe temps moyen du trajet du train 3 est de : %f secondes\n\n", (double) (temps_moyen / 100 - 6) / 2);
+                printf("\nLe temps moyen du trajet du train 3 est de : %f secondes\n\n", (double) (temps_moyen / 1000) / 2);
             }
             else if (rentre_train_trois == 2) {
                 temps_moyen = clock();
-                printf("\nLe temps moyen du trajet du train 3 est de : %f secondes\n\n", (double) (temps_moyen / 100 - 6) / 3);
+                printf("\nLe temps moyen du trajet du train 3 est de : %f secondes\n\n", (double) (temps_moyen / 1000) / 3);
             }
             rentre_train_trois = rentre_train_trois + 1;
         }
         
         printf("Le train3 doit faire le trajet: %s\n", train3[i%5]);
-        pthread_mutex_lock(&fifo);
+        pthread_mutex_lock(&fifo);// file d'attente Train1 et Train2
         pthread_mutex_lock(&mutex3);
-        nb_train3++;
+        nb_train3++;//Train3 va aller le trajet
         
         if (nb_train3 == 1){
-                //Direction inverse ou la meme trajet
+            //On verrouille les mutex d'Train1 et Train2 dans les directions en inverse ou les mêmes trajets
+            /*Deux cas dans les directions en inverse: 
+             * 1. Train1 et Train3 veulent deux directions en inverse (ex: Train3 veut aller A->B, Train1 veux aller B->A)
+             * 2. Train3 a fini le trajet A->B mais Train1 veux aller B->A
+             *Troisème cas en les mêmes trajets (ex Train1 et Train2 veulent aller A->B)
+             */
             if (train_en_inverse(possible_debut_train3,possible_fin_train3,possible_debut_train1,possible_fin_train1)||
                 (train_en_inverse(debut_train3,fin_train3,possible_debut_train1,possible_fin_train1) &&
                 !train_en_inverse(possible_debut_train3,possible_fin_train3,possible_debut_train1,possible_fin_train1))||
@@ -286,13 +309,13 @@ void* TrainTrois(void *p){
                 pthread_mutex_lock(&mutex2);
             } 
         } 
-        pthread_mutex_unlock(&mutex3);
+        pthread_mutex_unlock(&mutex3);//on déverrouille le mutex de Train3  
         pthread_mutex_unlock(&fifo);
-        strcpy(debut_train3,possible_debut_train3);
+        strcpy(debut_train3,possible_debut_train3);//Train3 est parti, la même valeur entre debut_train3 et possible_debut_train3
         
         // Récupère le temps
         temps = clock();
-        printf("%f - ", (double) temps / 100 - 6); // et l'affiche
+        printf("%f - ", (double) temps / 1000); // et l'affiche
 
         printf("Le train3 fait le trajet: %s\nLe train3 est parti de la gare: %s\n\n",train3[i%5],debut_train3);
         pthread_mutex_lock(&mutex3);
@@ -300,16 +323,16 @@ void* TrainTrois(void *p){
         
         // Récupère le temps
         temps = clock();
-        printf("%f - ", (double) temps / 100 - 6); // et l'affiche
+        printf("%f - ", (double) temps / 1000); // et l'affiche
         
         printf("Le train3 a fini le trajet : %s\nLe train3 est arrivé à la gare:%s\n\n",train3[i%5],fin_train3);
-        nb_train3--;
-        
+        nb_train3--;//Train3 a fini le trajet
+        // on déverrouille les mutex de Train1 et Train2
         if(nb_train3 == 0){
              pthread_mutex_unlock(&mutex1);
              pthread_mutex_unlock(&mutex2);
         }
-        i++;
+        i++;//un trajet suivant
         pthread_mutex_unlock(&mutex3);
         sleep(rand() % 3); //Train3 fait une pause
         
