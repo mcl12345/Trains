@@ -34,14 +34,14 @@ pthread_mutex_t mutex3 = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t fifo   = PTHREAD_MUTEX_INITIALIZER;
 
 clock_t temps; // Le temps
-//Declare un nombre de train dans le voie, pour permettre à avoir un unique train de circuler
+// Déclare un nombre de train dans la voie, pour avoir un unique train de circuler
 int nb_train1 = 0; 
 int nb_train2 = 0; 
 int nb_train3 = 0; 
 
-//Declare des elements de debut_train, fin_train
+// Déclare des élèments de debut_train, fin_train
 //debut_train, fin_train sont comme le trajet a fini
-//possible_debut_train, possible_fin_train sont comme le trajet va faire
+//possible_debut_train, possible_fin_train représentent ce que le trajet va faire
 char debut_train1[2],possible_debut_train1[2];
 char fin_train1[2],possible_fin_train1[2];
 char debut_train2[2],possible_debut_train2[2];
@@ -52,7 +52,7 @@ char fin_train3[2],possible_fin_train3[2];
 //Permet de limiter le calcul de la moyenne à 3 fois
 int rentre_train_un     = 0;
 int rentre_train_deux   = 0;
-int rentre_train_trois = 0;
+int rentre_train_trois 	= 0;
 
 // Récupère le caractère du début et de la fin de la chaine de caractere (ex: A --> B , donne A et B )
 char *substring(size_t start, size_t stop, const char *src, char *dst, size_t size)
@@ -80,7 +80,7 @@ int train_en_ligne(char *possible_debut1,char* possible_fin1,char* possible_debu
     return 0;
 }
 
-//Train 1
+// Thead 1 : Train 1
 void* TrainUn(void *p){
     int i = 0;
     char train1[4][8] = {"A --> B", "B --> C", "C --> B", "B --> A"};
@@ -113,7 +113,7 @@ void* TrainUn(void *p){
         pthread_mutex_lock(&mutex1);
         nb_train1++;//Train1 va aller le trajet
         if (nb_train1 == 1){
-            //On verrouille le mutex d'Train2 et Train3 dans la direction en inverse ou le même trajet
+            //On verrouille le mutex de Train2 et Train3 qui sont dans la direction inverse ou le même trajet
             /*Deux cas dans la direction en inverse: 
              * 1. Train1 et Train2 veulent deux directionS en inverse (ex: Train1 veut aller A->B, Train2 veux aller B->A)
              * 2. Train1 a fini le trajet A->B mais Train2 veux aller B->A
@@ -136,34 +136,33 @@ void* TrainUn(void *p){
             
             
         } 
-        pthread_mutex_unlock(&mutex1);//on déverrouille le mutex de Train1 
+        pthread_mutex_unlock(&mutex1);	// on déverrouille le mutex de Train1 
         pthread_mutex_unlock(&fifo);
-        strcpy(debut_train1,possible_debut_train1);//Train1 est parti, donne le valeur  pour debut_train1
+        strcpy(debut_train1,possible_debut_train1);// Le Train1 est parti, ça donne la valeur pour debut_train1
         
          // Récupère le temps
         temps = clock();
         printf("%f - ", (double) temps / 1000);    // et l'affiche
 
-
         printf("Le train1 fait le trajet: %s\nLe train1 est parti de la gare: %s\n\n",train1[i%4],debut_train1);
         pthread_mutex_lock(&mutex1);
-        strcpy(fin_train1,possible_fin_train1);//Train1 est arrivé, donne le valeur pour fin_train1
+        strcpy(fin_train1,possible_fin_train1); // Le Train1 est arrivé, ça donne le valeur pour fin_train1
         
         // Récupère le temps
         temps = clock();
         printf("%f - ", (double) temps / 1000); // et l'affiche
         
         printf("Le train1 a fini le trajet : %s\nLe train1 est arrivé à la gare:%s\n\n",train1[i%4],fin_train1);
-        nb_train1--;//Train1 a fini le trajet
+        nb_train1--; // Le Train1 a fini le trajet
         
-        // on déverrouille les mutex de Train2 et Train3
+        // On déverrouille les mutex de Train2 et Train3
         if(nb_train1 == 0){
             pthread_mutex_unlock(&mutex2);
             pthread_mutex_unlock(&mutex3);
         }
         i++;//un trajet suivant
         pthread_mutex_unlock(&mutex1);
-        sleep(rand() % 3); //Train1 fait une pause
+        sleep(rand() % 3); // Le Train1 fait une pause
        
     } 
     return NULL;
@@ -200,9 +199,9 @@ void* TrainDeux(void *p){
         printf("Le train2 doit faire le trajet: %s\n", train2[i%5]);
         pthread_mutex_lock(&fifo);// file d'attente Train1 et Train3
         pthread_mutex_lock(&mutex2);
-        nb_train2++;//Train2 va aller le trajet
+        nb_train2++;	// Le Train2 va aller le trajet
         if (nb_train2 == 1){
-            //On verrouille les mutex d'Train1 et Train3 dans les directions en inverse ou les mêmes trajets
+            // On verrouille les mutex du Train1 et du Train3 dans les directions en inverse ou les même trajets
             /*Deux cas dans les directions en inverse: 
              * 1. Train2 et Train1 veulent deux directions en inverse (ex: Train2 veut aller A->B, Train1 veux aller B->A)
              * 2. Train2 a fini le trajet A->B mais Train1 veux aller B->A
@@ -223,9 +222,9 @@ void* TrainDeux(void *p){
                 pthread_mutex_lock(&mutex3);
             }  
         } 
-        pthread_mutex_unlock(&mutex2);//on déverrouille le mutex de Train2 
+        pthread_mutex_unlock(&mutex2); // on déverrouille le mutex de Train2 
         pthread_mutex_unlock(&fifo);
-        strcpy(debut_train2,possible_debut_train2);//Train2 est parti, donne le valeur pour debut_train2
+        strcpy(debut_train2,possible_debut_train2);//Train2 est parti, ça donne la valeur pour debut_train2
         
         // Récupère le temps
         temps = clock();
@@ -233,7 +232,7 @@ void* TrainDeux(void *p){
         
         printf("Le train2 fait le trajet: %s\nLe train2 est parti de la gare: %s\n\n",train2[i%5],debut_train2);
         pthread_mutex_lock(&mutex2);
-        strcpy(fin_train2,possible_fin_train2);//Train2 est arrivé, donne la valeur pour fin_train2
+        strcpy(fin_train2,possible_fin_train2);//Train2 est arrivé, ça donne la valeur pour fin_train2
         
         // Récupère le temps
         temps = clock();
@@ -241,8 +240,8 @@ void* TrainDeux(void *p){
         
         printf("Le train2 a fini le trajet : %s\nLe train2 est arrivé à la gare:%s\n\n",train2[i%5],fin_train2);
        
-        nb_train2--;//Train2 a fini le trajet
-        // on déverrouille les mutex de Train1 et Train3
+        nb_train2--;// Le Train2 a fini le trajet
+        // On déverrouille les mutex de Train1 et Train3
         if(nb_train2 == 0){
            pthread_mutex_unlock(&mutex1);
            pthread_mutex_unlock(&mutex3); 
@@ -250,15 +249,15 @@ void* TrainDeux(void *p){
     
         i++;//un trajet suivant
         pthread_mutex_unlock(&mutex2);
-        sleep(rand() % 3); //Train2 fait une pause
+        sleep(rand() % 3); // Le Train2 fait une pause
     }
     return NULL;
 }
 
 //Train 3
-void* TrainTrois(void *p){
+void* TrainTrois(void *p) {
     int i = 0;
-    char train3[5][8] = {"A --> B", "B --> D", "D --> C", "C --> E", "E --> A"};
+    char train3[5][8] = { "A --> B", "B --> D", "D --> C", "C --> E", "E --> A" };
     
     while (i >= 0 ){
         // Récupère le trajet du train 3 en global dans debut_train3 et dans fin_train3 :
@@ -283,9 +282,9 @@ void* TrainTrois(void *p){
         }
         
         printf("Le train3 doit faire le trajet: %s\n", train3[i%5]);
-        pthread_mutex_lock(&fifo);// file d'attente Train1 et Train2
+        pthread_mutex_lock(&fifo);// file d'attente de Train1 et de Train2
         pthread_mutex_lock(&mutex3);
-        nb_train3++;//Train3 va aller le trajet
+        nb_train3++; // Train3 fait le trajet
         
         if (nb_train3 == 1){
             //On verrouille les mutex d'Train1 et Train2 dans les directions en inverse ou les mêmes trajets
@@ -309,9 +308,9 @@ void* TrainTrois(void *p){
                 pthread_mutex_lock(&mutex2);
             } 
         } 
-        pthread_mutex_unlock(&mutex3);//on déverrouille le mutex de Train3  
+        pthread_mutex_unlock(&mutex3); // On déverrouille le mutex de Train3  
         pthread_mutex_unlock(&fifo);
-        strcpy(debut_train3,possible_debut_train3);//Train3 est parti, la même valeur entre debut_train3 et possible_debut_train3
+        strcpy(debut_train3,possible_debut_train3);    // Le Train3 est parti, la même valeur entre debut_train3 et possible_debut_train3
         
         // Récupère le temps
         temps = clock();
@@ -326,7 +325,7 @@ void* TrainTrois(void *p){
         printf("%f - ", (double) temps / 1000); // et l'affiche
         
         printf("Le train3 a fini le trajet : %s\nLe train3 est arrivé à la gare:%s\n\n",train3[i%5],fin_train3);
-        nb_train3--;//Train3 a fini le trajet
+        nb_train3--; // Le Train3 a fini le trajet
         // on déverrouille les mutex de Train1 et Train2
         if(nb_train3 == 0){
              pthread_mutex_unlock(&mutex1);
